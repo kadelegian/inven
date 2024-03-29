@@ -54,65 +54,69 @@ class Barang_inventory extends CI_Controller
 
     public function read($id)
     {
-        $row = $this->Barang_inventory_model->get_detail_barang($id);
-        if ($row) {
-            $this->load->library('ciqrcode');
-            $params['data'] = site_url('barang_inventory/read/' . $id);
-            $params['level'] = 'H';
-            $params['size'] = 50;
-            $tempdir = FCPATH . 'assets/img/qr/';
-            if (!file_exists($tempdir)) {
-                mkdir($tempdir);
+        $id = $this->uri->segment(3, 0);
+        if ($id > 0) {
+
+            $row = $this->Barang_inventory_model->get_detail_barang($id);
+            if ($row) {
+                $this->load->library('ciqrcode');
+                $params['data'] = site_url('barang_inventory/read/' . $id);
+                $params['level'] = 'H';
+                $params['size'] = 50;
+                $tempdir = FCPATH . 'assets/img/qr/';
+                if (!file_exists($tempdir)) {
+                    mkdir($tempdir);
+                }
+                $params['savename'] = $tempdir . 'QR.png';
+                if (file_exists($params['savename'])) {
+                    unlink($params['savename']);
+                }
+                $this->ciqrcode->generate($params);
+                $qr = imagecreatefrompng($tempdir . 'QR.png');
+                $logo = imagecreatefrompng(FCPATH . 'assets/img/logo.png');
+                imagecolortransparent($logo, imagecolorallocatealpha($logo, 0, 0, 0, 127));
+                imagealphablending($logo, false);
+                imagesavealpha($logo, true);
+
+                $QR_width = imagesx($qr);
+                $QR_height = imagesy($qr);
+
+                $logo_width = imagesx($logo);
+                $logo_height = imagesy($logo);
+
+                // Scale logo to fit in the QR Code
+                $logo_qr_width = $QR_width / 3;
+                $scale = $logo_width / $logo_qr_width;
+                $logo_qr_height = $logo_height / $scale;
+
+                imagecopyresampled($qr, $logo, $QR_width / 3, $QR_height / 3, 0, 0, $logo_qr_width, $logo_qr_height, $logo_width, $logo_height);
+
+                // Simpan kode QR lagi, dengan logo di atasnya
+                imagepng($qr, $tempdir . 'QR.png');
+                $this->load->model('Maintenance_model');
+
+                $history = $this->Maintenance_model->get_maintenance_history($id);
+                $guest = true;
+                if ($this->ion_auth->logged_in()) {
+                    $guest = false;
+                }
+                $data = array(
+                    'id' => $row->id,
+                    'nomor' => $row->nomor,
+                    'nama_barang' => $row->nama_barang,
+                    'tanggal_pembelian' => $row->tanggal_pembelian,
+                    'harga_beli' => $row->harga_beli,
+                    'jenis' => $row->jenis_inventory,
+                    'lokasi' => $row->ruang . ', Lantai ' . $row->nomor_lantai,
+                    'spesifikasi' => $row->spesifikasi,
+                    'status' => $row->status,
+                    'qrcode' => $params['savename'] . '?id=' . $row->id,
+                    'maintenance_history' => $history,
+                    'guest' => $guest,
+                );
+
+                $this->template->load('template', 'barang_inventory_read', $data);
             }
-            $params['savename'] = $tempdir . 'QR.png';
-            if (file_exists($params['savename'])) {
-                unlink($params['savename']);
-            }
-            $this->ciqrcode->generate($params);
-            $qr = imagecreatefrompng($tempdir . 'QR.png');
-            $logo = imagecreatefrompng(FCPATH . 'assets/img/logo.png');
-            imagecolortransparent($logo, imagecolorallocatealpha($logo, 0, 0, 0, 127));
-            imagealphablending($logo, false);
-            imagesavealpha($logo, true);
-
-            $QR_width = imagesx($qr);
-            $QR_height = imagesy($qr);
-
-            $logo_width = imagesx($logo);
-            $logo_height = imagesy($logo);
-
-            // Scale logo to fit in the QR Code
-            $logo_qr_width = $QR_width / 3;
-            $scale = $logo_width / $logo_qr_width;
-            $logo_qr_height = $logo_height / $scale;
-
-            imagecopyresampled($qr, $logo, $QR_width / 3, $QR_height / 3, 0, 0, $logo_qr_width, $logo_qr_height, $logo_width, $logo_height);
-
-            // Simpan kode QR lagi, dengan logo di atasnya
-            imagepng($qr, $tempdir . 'QR.png');
-            $this->load->model('Maintenance_model');
-
-            $history = $this->Maintenance_model->get_maintenance_history($id);
-            $guest = true;
-            if ($this->ion_auth->logged_in()) {
-                $guest = false;
-            }
-            $data = array(
-                'id' => $row->id,
-                'nomor' => $row->nomor,
-                'nama_barang' => $row->nama_barang,
-                'tanggal_pembelian' => $row->tanggal_pembelian,
-                'harga_beli' => $row->harga_beli,
-                'jenis' => $row->jenis_inventory,
-                'lokasi' => $row->ruang . ', Lantai ' . $row->nomor_lantai,
-                'spesifikasi' => $row->spesifikasi,
-                'status' => $row->status,
-                'qrcode' => $params['savename'],
-                'maintenance_history' => $history,
-                'guest' => $guest,
-            );
-
-            $this->template->load('template', 'barang_inventory_read', $data);
         } else {
             $this->session->set_flashdata('message', 'Record Not Found');
             redirect(site_url('barang_inventory'));
