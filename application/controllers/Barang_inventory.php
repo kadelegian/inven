@@ -110,7 +110,7 @@ class Barang_inventory extends CI_Controller
                     'lokasi' => $row->ruang . ', Lantai ' . $row->nomor_lantai,
                     'spesifikasi' => $row->spesifikasi,
                     'status' => $row->status,
-                    'qrcode' => $params['savename'] . '?id=' . $row->id,
+                    'qrcode' => 'assets/img/qr/QR.png?id=' . $id,
                     'maintenance_history' => $history,
                     'guest' => $guest,
                 );

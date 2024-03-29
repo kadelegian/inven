@@ -6,7 +6,7 @@
     <table>
       <tr>
         <td colspan="3">
-          <img class="profile-user-img img-responsive" width="100" src="<?= base_url('assets/img/qr/QR.png') ?>" alt="">
+          <img class="profile-user-img img-responsive" width="100" src="<?= base_url($qrcode) ?>" alt="qrcode">
         </td>
       </tr>
       <tr>
@@ -34,7 +34,7 @@
       <!-- Profile Image -->
       <div class="box box-primary">
         <div class="box-body box-profile">
-          <img class="profile-user-img img-responsive" src="<?= base_url('assets/img/qr/QR.png') ?>" alt="">
+          <img class="profile-user-img img-responsive" src="<?= base_url($qrcode) ?>" alt="">
           <h3 class="profile-username text-center"><?php echo $nama_barang; ?></h3>
           <p class="text-muted text-center"><?php echo $nomor; ?></p>
           <hr>
