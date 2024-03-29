@@ -65,6 +65,9 @@ class Barang_inventory extends CI_Controller
                 mkdir($tempdir);
             }
             $params['savename'] = $tempdir . 'QR.png';
+            if (file_exists($params['savename'])) {
+                delete_files($params['savename']);
+            }
             $this->ciqrcode->generate($params);
             $qr = imagecreatefrompng($tempdir . 'QR.png');
             $logo = imagecreatefrompng(FCPATH . 'assets/img/logo.png');
