@@ -66,7 +66,7 @@ class Barang_inventory extends CI_Controller
             }
             $params['savename'] = $tempdir . 'QR.png';
             if (file_exists($params['savename'])) {
-                delete_files($params['savename']);
+                unlink($params['savename']);
             }
             $this->ciqrcode->generate($params);
             $qr = imagecreatefrompng($tempdir . 'QR.png');
