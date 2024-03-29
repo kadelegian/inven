@@ -1,0 +1,5 @@
+---
+deployment:
+tasks:
+- export DEPLOYPATH=/home/mtks7961/public_html/inv.mtkbali.com
+- /bin/cp -r * $DEPLOYPATH
